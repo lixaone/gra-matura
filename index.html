@@ -1,480 +1,166 @@
+ 
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Matura English – Wordwall Style</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'Nunito', sans-serif;
-  background: #1a1a2e;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  overflow-x: hidden;
-}
-
-/* ─── ANIMATED BG ─── */
-.bg-bubbles {
-  position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0;
-}
-.bubble {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.08;
-  animation: float linear infinite;
-}
-@keyframes float {
-  from { transform: translateY(110vh) scale(1); }
-  to   { transform: translateY(-20vh) scale(1.3); }
-}
-
-.wrap { position: relative; z-index: 1; width: 100%; max-width: 700px; }
-
-/* ─── HEADER BAR ─── */
-.topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  background: rgba(255,255,255,0.07);
-  backdrop-filter: blur(12px);
-  border-radius: 20px;
-  padding: 12px 20px;
-  margin-bottom: 18px;
-  border: 1px solid rgba(255,255,255,0.1);
-}
-.game-title { font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
-.game-title span { color: #ffd700; }
-.score-badge {
-  background: #ffd700;
-  color: #1a1a2e;
-  border-radius: 30px;
-  padding: 5px 16px;
-  font-weight: 900;
-  font-size: 1rem;
-}
-.timer-ring {
-  width: 46px; height: 46px;
-  position: relative;
-  display: flex; align-items: center; justify-content: center;
-}
-.timer-ring svg { position: absolute; top:0; left:0; transform: rotate(-90deg); }
-.timer-ring circle { fill: none; stroke: rgba(255,255,255,0.15); stroke-width: 4; }
-.timer-ring .prog { stroke: #ffd700; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
-.timer-num { font-size: 0.85rem; font-weight: 900; color: #fff; position: relative; z-index: 1; }
-
-/* ─── PROGRESS ─── */
-.progress-row {
-  display: flex; gap: 6px; margin-bottom: 18px;
-}
-.prog-dot {
-  flex: 1; height: 8px; border-radius: 99px;
-  background: rgba(255,255,255,0.15);
-  transition: background .3s;
-}
-.prog-dot.done-correct { background: #4ade80; }
-.prog-dot.done-wrong   { background: #f87171; }
-.prog-dot.active       { background: #ffd700; box-shadow: 0 0 8px #ffd700; }
-
-/* ─── QUESTION CARD ─── */
-.q-card {
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 24px;
-  padding: 28px 28px 22px;
-  margin-bottom: 18px;
-  text-align: center;
-}
-.q-cat-tag {
-  display: inline-block;
-  background: rgba(255,215,0,0.15);
-  color: #ffd700;
-  border-radius: 20px;
-  padding: 3px 14px;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin-bottom: 14px;
-}
-.q-text {
-  font-size: clamp(1.1rem, 3vw, 1.35rem);
-  font-weight: 800;
-  color: #fff;
-  line-height: 1.5;
-}
-.q-text .blank {
-  display: inline-block;
-  background: rgba(255,255,255,0.2);
-  border-bottom: 3px solid #ffd700;
-  min-width: 80px;
-  border-radius: 4px;
-  padding: 0 8px;
-}
-
-/* ─── ANSWER TILES ─── */
-.tiles {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-.tile {
-  position: relative;
-  border: none;
-  border-radius: 18px;
-  padding: 0;
-  cursor: pointer;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 800;
-  font-size: 1rem;
-  color: #fff;
-  overflow: hidden;
-  transition: transform .15s, box-shadow .15s;
-  min-height: 76px;
-  box-shadow: 0 4px 0 rgba(0,0,0,0.3);
-}
-.tile:hover:not(:disabled) {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 0 rgba(0,0,0,0.3);
-}
-.tile:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
-.tile:disabled { cursor: default; }
-
-.tile-inner {
-  display: flex; align-items: center; justify-content: center;
-  gap: 10px;
-  padding: 16px 18px;
-  min-height: 76px;
-}
-.tile-letter {
-  width: 30px; height: 30px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.85rem; font-weight: 900;
-  flex-shrink: 0;
-}
-.tile-label { flex: 1; text-align: left; line-height: 1.3; }
-
-/* color variants */
-.tile-0 { background: linear-gradient(135deg, #e85d9e, #c0226f); }
-.tile-1 { background: linear-gradient(135deg, #4f86f7, #1a5fd4); }
-.tile-2 { background: linear-gradient(135deg, #f97316, #c05406); }
-.tile-3 { background: linear-gradient(135deg, #22c55e, #15803d); }
-
-.tile.correct {
-  background: linear-gradient(135deg, #4ade80, #16a34a) !important;
-  animation: pop .35s cubic-bezier(.36,.07,.19,.97);
-}
-.tile.wrong {
-  background: linear-gradient(135deg, #f87171, #dc2626) !important;
-  animation: shake .35s ease;
-}
-@keyframes pop {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(1.07); }
-  70%  { transform: scale(0.96); }
-  100% { transform: scale(1); }
-}
-@keyframes shake {
-  0%,100% { transform: translateX(0); }
-  20%     { transform: translateX(-8px); }
-  60%     { transform: translateX(8px); }
-}
-
-/* ─── FEEDBACK BAR ─── */
-.feedback {
-  border-radius: 16px;
-  padding: 14px 20px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  display: none;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  animation: slideUp .25s ease;
-}
-.feedback.show { display: flex; }
-@keyframes slideUp {
-  from { opacity:0; transform: translateY(10px); }
-  to   { opacity:1; transform: translateY(0); }
-}
-.feedback.ok  { background: rgba(74,222,128,0.15); border: 1.5px solid #4ade80; color: #4ade80; }
-.feedback.bad { background: rgba(248,113,113,0.15); border: 1.5px solid #f87171; color: #f87171; }
-.feedback-icon { font-size: 1.4rem; }
-.feedback-text { flex: 1; line-height: 1.4; }
-.feedback-text strong { display: block; font-size: 1rem; }
-.feedback-text span   { font-size: 0.82rem; opacity: .85; font-weight: 600; }
-
-/* ─── NEXT BTN ─── */
-.btn-next {
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, #ffd700, #f59e0b);
-  border: none;
-  border-radius: 16px;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 900;
-  font-size: 1.1rem;
-  color: #1a1a2e;
-  cursor: pointer;
-  box-shadow: 0 4px 0 #b45309;
-  transition: transform .1s, box-shadow .1s;
-  display: none;
-}
-.btn-next.show { display: block; animation: slideUp .25s ease; }
-.btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #b45309; }
-.btn-next:active { transform: translateY(2px); box-shadow: 0 2px 0 #b45309; }
-
-/* ─── SCREENS ─── */
-.screen { display: none; }
-.screen.active { display: block; }
-
-/* START */
-.start-logo {
-  text-align: center;
-  padding: 20px 0 8px;
-  font-size: clamp(2rem,7vw,3.2rem);
-  font-weight: 900;
-  color: #fff;
-  line-height: 1.1;
-}
-.start-logo em { color: #ffd700; font-style: normal; }
-.start-sub { text-align: center; color: rgba(255,255,255,0.5); font-size: 0.9rem; font-weight: 700; margin-bottom: 28px; }
-
-.mode-cards {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
-}
-.mode-card {
-  background: rgba(255,255,255,0.07);
-  border: 2px solid rgba(255,255,255,0.1);
-  border-radius: 18px;
-  padding: 20px 16px;
-  cursor: pointer;
-  transition: all .2s;
-  text-align: center;
-}
-.mode-card:hover  { border-color: #ffd700; background: rgba(255,215,0,0.07); transform: translateY(-3px); }
-.mode-card.active { border-color: #ffd700; background: rgba(255,215,0,0.12); }
-.mode-icon { font-size: 2rem; margin-bottom: 8px; }
-.mode-name { font-size: 0.95rem; font-weight: 900; color: #fff; }
-.mode-desc { font-size: 0.72rem; color: rgba(255,255,255,0.45); font-weight: 700; margin-top: 3px; }
-
-.btn-play {
-  width: 100%;
-  padding: 18px;
-  background: linear-gradient(135deg, #ffd700, #f59e0b);
-  border: none; border-radius: 18px;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 900; font-size: 1.2rem;
-  color: #1a1a2e; cursor: pointer;
-  box-shadow: 0 5px 0 #b45309;
-  transition: transform .1s, box-shadow .1s;
-  letter-spacing: 0.5px;
-}
-.btn-play:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #b45309; }
-.btn-play:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: 0 5px 0 #b45309; }
-
-/* END */
-.end-wrap { text-align: center; padding: 20px 0; }
-.end-trophy { font-size: 5rem; margin-bottom: 12px; animation: bounce 1s ease infinite; }
-@keyframes bounce {
-  0%,100% { transform: translateY(0); }
-  50%      { transform: translateY(-12px); }
-}
-.end-pts {
-  font-size: clamp(3.5rem,12vw,6rem);
-  font-weight: 900;
-  color: #ffd700;
-  text-shadow: 0 0 40px rgba(255,215,0,0.4);
-  line-height: 1;
-}
-.end-pts-label { color: rgba(255,255,255,0.5); font-weight: 800; font-size: 0.9rem; margin-bottom: 16px; }
-.end-verdict { font-size: 1.5rem; font-weight: 900; color: #fff; margin-bottom: 6px; }
-.end-verdict-sub { color: rgba(255,255,255,0.55); font-size: 0.9rem; font-weight: 700; margin-bottom: 28px; }
-.stat-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 28px; }
-.stat-pill {
-  background: rgba(255,255,255,0.07);
-  border-radius: 30px;
-  padding: 10px 20px;
-  text-align: center;
-}
-.stat-pill .n { font-size: 1.6rem; font-weight: 900; }
-.stat-pill .l { font-size: 0.72rem; color: rgba(255,255,255,0.4); font-weight: 700; text-transform: uppercase; }
-.n.g { color: #4ade80; }
-.n.r { color: #f87171; }
-.n.y { color: #ffd700; }
-.btn-again {
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, #ffd700, #f59e0b);
-  border: none; border-radius: 16px;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 900; font-size: 1.1rem;
-  color: #1a1a2e; cursor: pointer;
-  box-shadow: 0 4px 0 #b45309;
-}
-.btn-again:hover { opacity: .9; }
-
-.hidden { display: none !important; }
-
-/* confetti */
-.confetti-piece {
-  position: fixed; top: -20px;
-  width: 10px; height: 10px;
-  border-radius: 2px;
-  opacity: 0;
-  animation: confettiFall linear forwards;
-  pointer-events: none;
-  z-index: 999;
-}
-@keyframes confettiFall {
-  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-}
-</style>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+            background-color: #f4f7f6;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+        .page {
+            width: 210mm;
+            height: 297mm;
+            position: relative;
+            page-break-after: always;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+        .header-bar {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 15px;
+            background: linear-gradient(90deg, #2c3e50, #3498db);
+        }
+        h1 { color: #2c3e50; font-size: 28pt; margin-bottom: 20px; }
+        h2 { color: #3498db; font-size: 20pt; }
+        p { font-size: 14pt; max-width: 80%; margin: 20px auto; }
+        .scenario {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
+        }
+        .btn {
+            display: block;
+            width: 80%;
+            margin: 10px auto;
+            padding: 15px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 13pt;
+            transition: background 0.3s;
+        }
+        .btn-wrong { background-color: #e67e22; }
+        .btn-correct { background-color: #27ae60; }
+        .btn-back { background-color: #95a5a6; margin-top: 20px; }
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 10pt;
+            color: #7f8c8d;
+        }
+    </style>
 </head>
 <body>
 
-<!-- BG -->
-<div class="bg-bubbles" id="bubbles"></div>
-
-<div class="wrap">
-
-  <!-- ══ START ══ -->
-  <div class="screen active" id="s-start">
-    <div class="start-logo">Matura<br><em>English</em> 🇬🇧</div>
-    <div class="start-sub">Powtórka • Styl Wordwall</div>
-    <div class="mode-cards" id="mode-grid"></div>
-    <button class="btn-play" id="btn-play" disabled>▶ ZAGRAJ</button>
-  </div>
-
-  <!-- ══ GAME ══ -->
-  <div class="screen" id="s-game">
-    <div class="topbar">
-      <div class="game-title">Matura <span>English</span></div>
-      <div class="score-badge" id="score-badge">0 pkt</div>
-      <div class="timer-ring">
-        <svg width="46" height="46" viewBox="0 0 46 46">
-          <circle cx="23" cy="23" r="19"/>
-          <circle cx="23" cy="23" r="19" class="prog" id="timer-circle"
-            stroke-dasharray="119.4" stroke-dashoffset="0"/>
-        </svg>
-        <div class="timer-num" id="timer-num">15</div>
-      </div>
+    <div class="page" id="start">
+        <div class="header-bar"></div>
+        <h1>Maturzysta w tarapatach!</h1>
+        <h2>Interaktywna powtórka z angielskiego</h2>
+        <div class="scenario">
+            <p>Jest 8:15 rano. Twój egzamin maturalny zaczyna się za 45 minut, a Ty właśnie wypadłeś z łóżka! Musisz podejmować szybkie (i poprawne) decyzje, aby zdążyć i zdać.</p>
+        </div>
+        <a href="#q1" class="btn">ZACZNIJ GRĘ</a>
+        <div class="footer">Gemini English Learning Series</div>
     </div>
-    <div class="progress-row" id="prog-row"></div>
-    <div class="q-card">
-      <div class="q-cat-tag" id="q-cat-tag">Grammar</div>
-      <div class="q-text" id="q-text"></div>
+
+    <div class="page" id="q1">
+        <div class="header-bar"></div>
+        <h2>KROK 1: Szybka wiadomość</h2>
+        <p>Musisz napisać SMS do kolegi, który na Ciebie czeka. Co napiszesz?</p>
+        <div class="scenario">
+            "Przepraszam, spóźnię się. Właśnie się obudziłem!"
+        </div>
+        <a href="#q1-wrong" class="btn">A) I'm sorry, I was late. I just wake up!</a>
+        <a href="#q2" class="btn">B) I'm sorry, I'll be late. I've just woken up!</a>
+        <a href="#q1-wrong" class="btn">C) I'm sorry, I'm late. I just woke up!</a>
     </div>
-    <div class="tiles" id="tiles"></div>
-    <div class="feedback" id="feedback">
-      <div class="feedback-icon" id="fb-icon"></div>
-      <div class="feedback-text">
-        <strong id="fb-title"></strong>
-        <span id="fb-exp"></span>
-      </div>
+
+    <div class="page" id="q1-wrong">
+        <div class="header-bar" style="background: #e74c3c;"></div>
+        <h2 style="color: #e74c3c;">Oj! Błąd gramatyczny.</h2>
+        <p>Kolega nie zrozumiał, o co Ci chodzi. Czas ucieka!</p>
+        <div class="scenario">
+            Wskazówka: Użyj <b>Future Simple</b> dla przyszłości oraz <b>Present Perfect</b> dla czynności, która właśnie się wydarzyła i ma wpływ na teraz.
+        </div>
+        <a href="#q1" class="btn btn-back">SPRÓBUJ PONOWNIE</a>
     </div>
-    <button class="btn-next" id="btn-next">Następne →</button>
-  </div>
 
-  <!-- ══ END ══ -->
-  <div class="screen" id="s-end">
-    <div class="end-wrap">
-      <div class="end-trophy" id="end-trophy">🏆</div>
-      <div class="end-pts" id="end-pts">0</div>
-      <div class="end-pts-label">punktów</div>
-      <div class="end-verdict" id="end-verdict">Świetnie!</div>
-      <div class="end-verdict-sub" id="end-sub"></div>
-      <div class="stat-row">
-        <div class="stat-pill"><div class="n g" id="st-ok">0</div><div class="l">Poprawne</div></div>
-        <div class="stat-pill"><div class="n r" id="st-bad">0</div><div class="l">Błędne</div></div>
-        <div class="stat-pill"><div class="n y" id="st-pct">0%</div><div class="l">Celność</div></div>
-      </div>
-      <button class="btn-again" id="btn-again">↩ Zagraj jeszcze raz</button>
+    <div class="page" id="q2">
+        <div class="header-bar"></div>
+        <h2>KROK 2: Zagubiony turysta</h2>
+        <p>Biegniesz na przystanek. Zaczepia Cię turysta: "Excuse me, how do I get to the train station?"</p>
+        <div class="scenario">
+            Musisz mu szybko odpowiedzieć: "Idź prosto i skręć w drugą w lewo".
+        </div>
+        <a href="#q2-wrong" class="btn">A) Go straight and take second left.</a>
+        <a href="#q3" class="btn">B) Go straight and take the second turning on the left.</a>
+        <a href="#q2-wrong" class="btn">C) Walk front and go to second street on left.</a>
     </div>
-  </div>
 
-</div>
+    <div class="page" id="q2-wrong">
+        <div class="header-bar" style="background: #e74c3c;"></div>
+        <h2 style="color: #e74c3c;">Turysta się zgubił...</h2>
+        <p>Twoje wskazówki były mało precyzyjne.</p>
+        <div class="scenario">
+            Wskazówka: W języku angielskim używamy zwrotu <b>"take the (first/second) turning on the left/right"</b>.
+        </div>
+        <a href="#q2" class="btn btn-back">SPRÓBUJ PONOWNIE</a>
+    </div>
 
-<script>
-// ──────────────────────────────────────────────
-// DATA
-// ──────────────────────────────────────────────
-const MODES = [
-  { id:'grammar',  icon:'⚙️',  name:'Gramatyka',   desc:'Czasy, tryby, strona bierna' },
-  { id:'vocab',    icon:'📖',  name:'Słownictwo',  desc:'Phrasal verbs, idiomy, synonimy' },
-  { id:'reading',  icon:'🔍',  name:'Czytanie',    desc:'Znaczenia, linki, kontekst' },
-  { id:'writing',  icon:'✍️', name:'Pisanie',      desc:'Email, esej, list formalny' },
-];
+    <div class="page" id="q3">
+        <div class="header-bar"></div>
+        <h2>KROK 3: Przed salą</h2>
+        <p>Wpadasz do szkoły o 8:55. Nauczyciel pyta: "Are you ready?".</p>
+        <div class="scenario">
+            Chcesz powiedzieć: "Mam nadzieję, że egzamin nie będzie zbyt trudny".
+        </div>
+        <a href="#q3-wrong" class="btn">A) I hope the exam won't be to difficult.</a>
+        <a href="#win" class="btn">B) I hope the exam won't be too difficult.</a>
+        <a href="#q3-wrong" class="btn">C) I wish the exam is easy.</a>
+    </div>
 
-const QUESTIONS = {
-  grammar: [
-    { q:"She _____ TV when I called.", a:["was watching","watched","is watching","watches"], c:0, e:"Past Continuous — czynność trwała w momencie w przeszłości." },
-    { q:"If I _____ rich, I'd travel the world.", a:["am","was","were","will be"], c:2, e:"2nd Conditional: If + were (nawet dla I/he/she)." },
-    { q:"He _____ to Paris three times.", a:["has been","went","goes","was"], c:0, e:"Present Perfect — doświadczenia z przeszłości, bez podania kiedy." },
-    { q:"The letter _____ yesterday.", a:["sent","was sent","has sent","is sent"], c:1, e:"Strona bierna Past Simple: was + past participle." },
-    { q:"I wish I _____ speak French better.", a:["can","could","would","will"], c:1, e:"Wish + could — życzenie dotyczące umiejętności." },
-    { q:"She made me _____ the dishes.", a:["to wash","washing","wash","washed"], c:2, e:"Make somebody do — bez 'to'!" },
-    { q:"He told me he _____ tired.", a:["is","was","be","has been"], c:1, e:"Mowa zależna: czas przesuwa się w tył (is→was)." },
-    { q:"By next year she _____ here for 5 years.", a:["will work","works","will have worked","has worked"], c:2, e:"Future Perfect — czynność zakończona przed momentem w przyszłości." },
-    { q:"It's time we _____ home.", a:["go","went","going","to go"], c:1, e:"It's time + past subjunctive (went), choć znaczenie teraźniejsze." },
-    { q:"I'd rather you _____ smoke inside.", a:["don't","didn't","not","won't"], c:1, e:"I'd rather + past tense (didn't) — cudze zachowanie." },
-  ],
-  vocab: [
-    { q:"Opposite of 'optimistic':", a:["pessimistic","realistic","idealistic","enthusiastic"], c:0, e:"Pessimistic = nastawiony negatywnie." },
-    { q:"'She takes ___ her mother' — looks like her:", a:["after","up","over","off"], c:0, e:"Take after = być podobnym do kogoś." },
-    { q:"He _____ a cold after the trip.", a:["caught","got","took","made"], c:0, e:"Catch a cold — stały collocation." },
-    { q:"'Sales skyrocketed.' Skyrocket means:", a:["fell sharply","rose dramatically","stayed flat","decreased"], c:1, e:"Skyrocket = gwałtownie wzrosnąć." },
-    { q:"A 'commute' is:", a:["daily travel to work","holiday trip","business flight","city walk"], c:0, e:"Commute = codzienne dojazdy do/z pracy." },
-    { q:"'She settled the bill.' This means she:", a:["questioned it","paid it","disputed it","split it"], c:1, e:"Settle the bill = uregulować/zapłacić rachunek." },
-    { q:"Synonym of 'huge':", a:["enormous","eager","entire","empty"], c:0, e:"Enormous = ogromny." },
-    { q:"'Prone to mistakes' means:", a:["unlikely to make","likely to make","afraid to make","good at making"], c:1, e:"Prone to = skłonny do / mający tendencję do." },
-    { q:"A 'household name' is someone who is:", a:["famous","rich","unknown","fictional"], c:0, e:"Household name = osoba powszechnie znana." },
-    { q:"'In spite of the rain, they played.' In spite of = ", a:["because of","despite","although","therefore"], c:1, e:"In spite of = mimo (+ rzeczownik/gerund), = despite." },
-  ],
-  reading: [
-    { q:"'The results were far from satisfactory.' This means:", a:["very good","not good enough","exactly right","surprising"], c:1, e:"Far from = zupełnie nie — wyniki były niewystarczające." },
-    { q:"The word 'however' signals:", a:["additional info","contrast","cause & effect","example"], c:1, e:"However = jednak/natomiast — kontrast." },
-    { q:"'As a result' introduces:", a:["a contrast","a cause","a consequence","an example"], c:2, e:"As a result = w wyniku tego — skutek." },
-    { q:"'In contrast' tells you:", a:["ideas are similar","a difference follows","a reason follows","an example follows"], c:1, e:"In contrast = w przeciwieństwie — różnica." },
-    { q:"Prefix 'in-' in 'inconclusive' means:", a:["very","again","not","before"], c:2, e:"in- = przedrostek zaprzeczający: inconclusive = bez wniosków." },
-    { q:"'The synopsis' is:", a:["a long analysis","a short summary","an introduction","a conclusion"], c:1, e:"Synopsis = krótkie streszczenie fabuły/treści." },
-    { q:"'For instance' introduces:", a:["a contrast","a result","an example","a cause"], c:2, e:"For instance = na przykład — przykład." },
-    { q:"'Furthermore' is used to:", a:["contrast ideas","add information","show result","give example"], c:1, e:"Furthermore = co więcej — dodaje informację." },
-    { q:"'Despite' is followed by:", a:["a clause (subject+verb)","a noun/gerund","an adjective","an adverb"], c:1, e:"Despite + noun/gerund: despite the rain / despite being tired." },
-    { q:"'Nevertheless' signals:", a:["contrast/concession","reason","example","result"], c:0, e:"Nevertheless = mimo to — kontrast/ustępstwo." },
-  ],
-  writing: [
-    { q:"Best formal email opening (unknown recipient):", a:["Hey!","Dear Sir/Madam,","Hello friend,","Yo,"], c:1, e:"Dear Sir/Madam — gdy nie znamy adresata." },
-    { q:"After 'Dear Sir/Madam' you close with:", a:["Best wishes","Yours sincerely","Yours faithfully","Kind regards"], c:2, e:"Dear Sir/Madam → Yours faithfully. Dear Mr X → Yours sincerely." },
-    { q:"Most formal way to ask a question:", a:["Can you tell me?","I want to know.","I would like to enquire.","What about my order?"], c:2, e:"'I would like to enquire' — najbardziej formalny zwrot." },
-    { q:"A 'topic sentence' should be:", a:["at the end","in the middle","at the start of a paragraph","in the conclusion"], c:2, e:"Topic sentence = pierwsze zdanie akapitu, zapowiada jego treść." },
-    { q:"Best linking word to add another point formally:", a:["Also,","Plus,","Furthermore,","And also,"], c:2, e:"Furthermore = co więcej — formalny łącznik dodający punkt." },
-    { q:"In an opinion essay you should:", a:["give only one view","list facts only","present views then give opinion","not use linking words"], c:2, e:"Opinion essay = różne perspektywy + wyraźne własne zdanie." },
-    { q:"A formal complaint email should be:", a:["aggressive","polite but firm","very short","casual"], c:1, e:"Grzeczny ale stanowczy + konkretne fakty = najskuteczniejszy." },
-    { q:"A review should include:", a:["only a plot summary","only negatives","description AND assessment","just facts"], c:2, e:"Review = opis + ocena — oba elementy są kluczowe." },
-    { q:"'For example' in formal writing — better alternative:", a:["like","such as","kinda","obviously"], c:1, e:"Such as = formalny odpowiednik 'for example' / 'like'." },
-    { q:"Passive in formal writing: 'They will announce…' →", a:["They will announce","It will be announced","Announcement will do","We will say"], c:1, e:"Strona bierna brzmi bardziej obiektywnie i formalnie." },
-  ]
-};
+    <div class="page" id="q3-wrong">
+        <div class="header-bar" style="background: #e74c3c;"></div>
+        <h2 style="color: #e74c3c;">Uważaj na pisownię!</h2>
+        <p>Nauczyciel uniósł brew. Taki błąd na maturze?</p>
+        <div class="scenario">
+            Wskazówka: <b>Too</b> (zbyt/także) piszemy przez dwa "o". <b>To</b> to przyimek (do).
+        </div>
+        <a href="#q3" class="btn btn-back">SPRÓBUJ PONOWNIE</a>
+    </div>
 
-const TIMER_MAX = 15;
-const POINTS_BASE = 100;
-const BONUS_SPEED = 5; // bonus points per second remaining
-const CIRCUMFERENCE = 2 * Math.PI * 19; // r=19
+    <div class="page" id="win">
+        <div class="header-bar" style="background: #27ae60;"></div>
+        <h1 style="color: #27ae60;">SUKCES!</h1>
+        <h2>Zdążyłeś i napisałeś świetnie!</h2>
+        <div class="scenario">
+            <p>Twoje poprawne odpowiedzi pozwoliły Ci bez stresu wejść na salę. Egzaminator jest pod wrażeniem Twojej płynności językowej.</p>
+            <p><b>Wynik: 100%</b></p>
+        </div>
+        <a href="#start" class="btn">ZAGRAJ JESZCZE RAZ</a>
+    </div>
 
-// ──────────────────────────────────────────────
-// STATE
-// ──────────────────────────────────────────────
-let selectedModes = new Set();
-let pool = [], qi = 0, score = 0, correct = 0, wrong = 0;
-let timerInterval = null, timeLeft = TIMER_MAX;
-let answered 
+</body>
+</html>
+ 
